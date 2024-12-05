@@ -9,14 +9,14 @@
 
 typedef struct tk_node_t{
     void *data;
-    void *next;
+    struct tk_node_t *next;
 }tk_node_t;
 
 extern tk_node_t* tk_list_create(void *data);
 extern void tk_list_delete(tk_node_t *list);
 
-extern tk_node_t* tk_list_push_front(tk_node_t *list, void *data);
-extern tk_node_t* tk_list_pop_front(tk_node_t *list);
+extern int tk_list_push_front(tk_node_t **list, void *data);
+extern void tk_list_pop_front(tk_node_t **list);
 
 extern int tk_list_push_back(tk_node_t *list, void* data);
 extern void tk_list_pop_back(tk_node_t *list);

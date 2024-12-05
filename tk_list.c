@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stdlib.h> /* malloc(), exit()*/
 #include "tk_list.h"
 
 tk_node_t* tk_list_create(void* data){
@@ -28,24 +28,26 @@ void tk_list_delete(tk_node_t *list)
     }while (current != NULL);
 }
 
-tk_node_t* tk_list_push_front(tk_node_t *list, void *data)
+int tk_list_push_front(tk_node_t **list, void *data)
 {
     tk_node_t *node = malloc(sizeof(tk_node_t));
     if(!node){
-        return NULL; 
+        return -1;
     }
     
     node->data = data;
-    node->next = list;
+    node->next = *list;
     
-    return node;
+    *list = node;
+    
+    return 0;
 }
 
-tk_node_t* tk_list_pop_front(tk_node_t *list)
+void tk_list_pop_front(tk_node_t **list)
 {
-    tk_node_t *node = list->next;
-    free(list);
-    return node;
+    tk_node_t *tmp = *(list);
+    free(*list);
+    *list = tmp->next;
 }
 
 int tk_list_push_back(tk_node_t *list, void* data)
@@ -70,16 +72,13 @@ int tk_list_push_back(tk_node_t *list, void* data)
 
 void tk_list_pop_back(tk_node_t *list)
 {
-    tk_node_t *back_node;
     tk_node_t *current;
     
-    back_node = tk_list_get_back(list);
-    
     current = list;
-    while (current->next != back_node)
+    while (current->next->next != NULL)
         current = current->next;
     
-    free(back_node);
+    free(current->next);
     current->next = NULL;
 }
 
@@ -93,3 +92,14 @@ tk_node_t* tk_list_get_back(tk_node_t *list)
     
     return current;
 }
+/*
+tk_node_t* tk_list_find(tk_list_t *list, void *data)
+{
+    
+}
+
+int tl_list_insert_after(tk_list_t **list, void* data_to_insert, tk_list_t node_to_find)
+{
+    
+}
+*/
