@@ -22,6 +22,7 @@ void tk_list_delete(tk_node_t **list)
     current = *list;
     while(current->next != NULL){
         tmp = current->next;
+        free(current->data);
         free(current);
         current = tmp;
     }
@@ -51,6 +52,7 @@ void tk_list_pop_front(tk_node_t **list)
     
     tmp = *list;
     *list = tmp->next;
+    free(tmp->data);
     free(tmp);
 }
 
@@ -81,6 +83,7 @@ void tk_list_pop_back(tk_node_t *list)
         current = current->next;
     }
     
+    free(current->next->data);
     free(current->next);
     current->next = NULL;
 }
