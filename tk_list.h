@@ -26,8 +26,9 @@ extern tk_node_t* tk_list_create(void *data);
 /**
 * @brief Delete the list. This function will free all allocated memory for the list, and set the list ptr to NULL.
 * @param list A double ptr to the head node of the list.
+* @param flag A flag to tell if you want to free the adress of data contained.(1 = true, 0 = false)
 */
-extern void tk_list_delete(tk_node_t **list);
+extern void tk_list_delete(tk_node_t **list, int flag);
 
 /**
 * @brief Insert new node at the front of the list.
@@ -40,9 +41,10 @@ extern int tk_list_push_front(tk_node_t **list, void *data);
 /**
 * @brief Delete the node at the front.
 * @param list A double ptr to the head node.
+* @param flag A flag to tell if you want to free the adress of data contained.(1 = true, 0 = false)
 * @return if there is only head node left in the list, return 1. otherwise return 0 on suceess.
 */
-extern int tk_list_pop_front(tk_node_t **list);
+extern int tk_list_pop_front(tk_node_t **list, int flag);
 
 /**
 * @brief Insert a new node at the end of the list.
@@ -55,9 +57,10 @@ extern int tk_list_push_back(tk_node_t *list, void* data);
 /**
 * @brief Delete the node at the end of the list.
 * @param list A ptr to the head node.
+* @param flag A flag to tell if you want to free the adress of data contained.(1 = true, 0 = false)
 * @return if there is only head node left in the list, return 1. otherwise return 0 on suceess.
 */
-extern int tk_list_pop_back(tk_node_t *list);
+extern int tk_list_pop_back(tk_node_t *list, int flag);
 
 /**
 * @brief Return the node at the end of the list.
