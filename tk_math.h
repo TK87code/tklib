@@ -39,4 +39,4 @@ int tkmt_rand(int min, int max);
 */
 float tkmt_randf(float min, float max);
 
-#endif //TK_MATH_H
+#endif /* TK_MATH_H */

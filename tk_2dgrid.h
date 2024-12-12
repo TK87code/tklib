@@ -14,4 +14,4 @@
 */
 int tk2dg_rotate(int x, int y, int size, int flag);
 
-#endif //TK_2DGRID_H
+#endif /* TK_2DGRID_H */

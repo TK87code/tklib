@@ -9,7 +9,7 @@
 
 #ifndef NULL
 #define NULL 0
-#endif //NULL
+#endif /* NULL */
 
 typedef struct tk_node_t{
     void *data;
@@ -86,4 +86,4 @@ extern tk_node_t* tk_list_find(tk_node_t *list, void *data);
 */
 extern int tk_list_insert_after(tk_node_t *list, void* data_to_insert, void *data_to_find);
 
-#endif //TK_LIST_H
+#endif /* TK_LIST_H */
