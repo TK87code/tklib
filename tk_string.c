@@ -97,14 +97,14 @@ Take a pointer of a string as a parameter, find a char, erase words untill the c
     Return 0 on success, -1 on error;
 */
 int tkstr_erase_until_char(char **src, char find){
-    char *tmp; // return value
-    char *p; // the position of the character found
-    int len_src; // length of the src
-    int len_front; // length of the string untill the character(the position that shoulg be deleted)
-    int len_tmp; // length of the result
+    char *tmp;     /* return value */
+    char *p;       /* the position of the character found */
+    int len_src;   /* length of the src */
+    int len_front; /* length of the string untill the character(the position that shoulg be deleted) */
+    int len_tmp;   /* length of the result */
     
     
-    // Sanity check
+    /* Sanity check */
     if (*src == 0 || find == '\0')
         return -1;
     
