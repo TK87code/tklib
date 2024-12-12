@@ -8,7 +8,7 @@ WARNING: Using malloc, make sure to free in the client code.
 Take a string as a parameter, find the string passed in the parameter, replace the substring with the string given.
     Return 0 on errors;
 */
-char* tk_string_replace(char *src, char *find, char *replace_with)
+char* tkstr_replace(char *src, char *find, char *replace_with)
 {
     char *result;         /* result string to return */
     char *insert_point;   /* next insert point */
@@ -63,7 +63,7 @@ Take a pointer of a string as a parameter, find a char, erase after of it (inclu
     Return 0 on success, -1 on errors;
 */
 
-int tk_string_erase_after_char(char **src, char find){
+int tkstr_erase_after_char(char **src, char find){
     char *tmp;   /* this contains the address of returning string */
     char *p;        /* the position of the character */
     int len_tmp; /* The length of tmp */
@@ -96,7 +96,7 @@ int tk_string_erase_after_char(char **src, char find){
 Take a pointer of a string as a parameter, find a char, erase words untill the char position(including the char).
     Return 0 on success, -1 on error;
 */
-int tk_string_erase_until_char(char **src, char find){
+int tkstr_erase_until_char(char **src, char find){
     char *tmp; // return value
     char *p; // the position of the character found
     int len_src; // length of the src
