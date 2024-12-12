@@ -2,7 +2,7 @@
 
 int tk2dg_rotate(int x, int y, int size, int flag)
 {
-    int index = 0;
+    int index = -1;
     
     if (flag < 0 || flag > 3)
         return -1;
