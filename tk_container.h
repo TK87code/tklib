@@ -4,12 +4,32 @@
 * @author Takuya Kimura (https://github.com/TK87code)
  * @date December 4th 2024 7:11 pm 
 */
-#ifndef TK_LIST_H
-#define TK_LIST_H
+#ifndef TK_CONTAINER_H
+#define TK_CONTAINER_H
 
 #ifndef NULL
 #define NULL 0
 #endif /* NULL */
+
+#include <stddef.h> /* size_t */
+
+/* === tk_darray.c ===*/
+
+typedef struct tk_darray{
+    unsigned int capacity; /* Maximun nuimber of items that the array can contain. */
+    unsigned int length;   /* Current number of items thay the array have. */
+    size_t item_size;   /* */
+    void *items;
+}tk_darray_t;
+
+/**
+* @brief Create a dynamic array.
+* @param item_size The size of the items that will be contained the array in bytes.
+* @return void An adress of where user can actually store the data.
+*/
+void* tk_darray_create(size_t item_size);
+
+/* === tk_list.c ===*/
 
 typedef struct tk_node_t{
     void *data;
@@ -86,4 +106,4 @@ extern tk_node_t* tk_list_find(tk_node_t *list, void *data);
 */
 extern int tk_list_insert_after(tk_node_t *list, void* data_to_insert, void *data_to_find);
 
-#endif /* TK_LIST_H */
+#endif /* TK_CONTAINER_H */
