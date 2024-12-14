@@ -1,8 +1,9 @@
 #include <stdlib.h> /* malloc, exit, size_t */
-#include <string.h> /* memset */
+#include <string.h> /* memset, memcpy */
 #include "tk_container.h"
 
 #define DEFAULT_CAPACITY 1
+#define DEFAULT_RESIZE_FACTOR 2 /* Whenever darray is full, double the size */
 
 enum { /* Dynamic Array's header elements */
     DARRAY_CAPACITY,
@@ -36,4 +37,126 @@ void * items
     
     /* returns the address where user can actually store data */
     return (void*)(new_array + DARRAY_ELEMENT_COUNT);
+}
+
+void tk_darray_destroy(void *darray)
+{
+    /* Back to the adress at the very first of darray header(which was gave from malloc or realloc), and free it */
+    darray = (size_t*)darray - DARRAY_ELEMENT_COUNT;
+    free(darray);
+}
+
+static size_t __get_header_element(void *darray, int element)
+{
+    /* Back to the adress at the very first of darray header */
+    size_t *arr = (size_t*)darray - DARRAY_ELEMENT_COUNT;
+    
+    return arr[element];
+}
+
+static void __set_header_element(void *darray, int element, size_t value)
+{
+    /* Back to the adress at the very first of darray header */
+    size_t *arr = (size_t*)darray - DARRAY_ELEMENT_COUNT;
+    
+    arr[element] = value;
+}
+
+static void* __darray_resize(void *darray, int resize_factor)
+{
+    size_t capacity =__get_header_element(darray, DARRAY_CAPACITY);
+    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
+    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    size_t header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
+    size_t new_array_size = header_size + capacity * item_size * resize_factor;
+    
+    /* The address that  was given by malloc when created */
+    size_t *addr = (size_t*)darray - DARRAY_ELEMENT_COUNT;
+    
+    size_t *resized_array = malloc(new_array_size);
+    if (!resized_array) return NULL;
+    free(addr);
+    memset(resized_array, 0, new_array_size);
+    memcpy(resized_array, addr, header_size + (length * item_size));
+    
+    /* Update capacity header data */
+    addr = resized_array + DARRAY_ELEMENT_COUNT;
+    __set_header_element(addr, DARRAY_CAPACITY, capacity * resize_factor);
+    
+    return (void*)(resized_array + DARRAY_ELEMENT_COUNT);
+}
+
+void* tk_darray_push(void *darray, const void *item)
+{
+    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
+    size_t capacity = __get_header_element(darray, DARRAY_CAPACITY);
+    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    char *addr_to_add;
+    
+    /* Resize the darray if needed */
+    if (length >= capacity){
+        darray = __darray_resize(darray, DEFAULT_RESIZE_FACTOR);
+        if (!darray) return NULL;
+    }
+    
+    /* Move the pointer to the end, casting char* (1 byte)*/
+    addr_to_add = (char*)darray + (length * item_size);
+    memcpy((void*)addr_to_add, item, item_size);
+    
+    /* update length data in header */
+    __set_header_element(darray, DARRAY_LENGTH, length + 1);
+    
+    return darray;
+}
+
+size_t tk_darray_count(void *darray)
+{
+    return __get_header_element(darray, DARRAY_LENGTH);
+}
+
+void tk_darray_pop(void *darray)
+{
+    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
+    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    /*Move the pointer to the end, casting char* (1byte) */
+    char *addr_to_delete = (char*)darray + ((length - 1) * item_size);
+    memset(addr_to_delete, 0, item_size);
+    
+    /* Update length data in header */
+    __set_header_element(darray, DARRAY_LENGTH, length - 1);
+}
+
+void* tk_darray_insert_at(void* darray, void* item, size_t index){
+    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
+    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    size_t capacity = __get_header_element(darray, DARRAY_CAPACITY);
+    size_t header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
+    
+    /* If the darray already at the full capacity, resize */
+    if (index >= capacity){
+        int resize_factor = 0; 
+        size_t new_capacity = capacity;
+        do{
+            resize_factor += 2;
+            new_capacity =  new_capacity * resize_factor;
+        }while (index >= new_capacity);
+        
+        darray = __darray_resize(darray, resize_factor);
+        capacity = __get_header_element(darray, DARRAY_CAPACITY);
+    }
+    
+    char *addr = (char*)darray;
+    /* If index is not the last item in the array, copy the memory onwards */
+    if (index != length - 1){
+        memcpy((void*)(addr + ((index + 1) * item_size)),
+               (void*)(addr + index * item_size),
+               item_size * (capacity - index - 1));
+    }
+    
+    memcpy((void*)(addr + index * item_size), item, item_size);
+    
+    /* Update header data*/
+    __set_header_element(darray, DARRAY_LENGTH, (index + 1 > length + 1) ? index + 1 : length + 1);
+    
+    return darray;
 }

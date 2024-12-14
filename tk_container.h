@@ -15,19 +15,26 @@
 
 /* === tk_darray.c ===*/
 
-typedef struct tk_darray{
-    unsigned int capacity; /* Maximun nuimber of items that the array can contain. */
-    unsigned int length;   /* Current number of items thay the array have. */
-    size_t item_size;   /* */
-    void *items;
-}tk_darray_t;
-
 /**
 * @brief Create a dynamic array.
 * @param item_size The size of the items that will be contained the array in bytes.
 * @return void An adress of where user can actually store the data.
 */
 void* tk_darray_create(size_t item_size);
+
+/**
+* @brief Destroy a dynamic array. This function will free the memory allocated by tk_darray_create().
+* @param darray A pointer of darray.
+*/
+void tk_darray_destroy(void *darray);
+
+void* tk_darray_push(void *darray, const void *item);
+
+size_t tk_darray_count(void *darray);
+
+void tk_darray_pop(void *darray);
+
+void* tk_darray_insert_at(void* darray, void* item, size_t index);
 
 /* === tk_list.c ===*/
 
@@ -44,11 +51,11 @@ typedef struct tk_node_t{
 extern tk_node_t* tk_list_create(void *data);
 
 /**
-* @brief Delete the list. This function will free all allocated memory for the list, and set the list ptr to NULL.
+* @brief Destroy the list. This function will free all allocated memory for the list, and set the list ptr to NULL.
 * @param list A double ptr to the head node of the list.
 * @param flag A flag to tell if you want to free the adress of data contained.(1 = true, 0 = false)
 */
-extern void tk_list_delete(tk_node_t **list, int flag);
+extern void tk_list_destroy(tk_node_t **list, int flag);
 
 /**
 * @brief Insert new node at the front of the list.
@@ -72,7 +79,7 @@ extern int tk_list_pop_front(tk_node_t **list, int flag);
 * @param data A ptr to the data to insert.
 * @return return 0 on success, -1 on malloc error.
 */
-extern int tk_list_push_back(tk_node_t *list, void* data);
+extern int tk_list_push_back(tk_node_t *list, void *data);
 
 /**
 * @brief Delete the node at the end of the list.
@@ -104,6 +111,6 @@ extern tk_node_t* tk_list_find(tk_node_t *list, void *data);
 * @param data_to_find A ptr to the data to find.
 * @return Return 0 on success, -1 on malloc error.
 */
-extern int tk_list_insert_after(tk_node_t *list, void* data_to_insert, void *data_to_find);
+extern int tk_list_insert_after(tk_node_t *list, void *data_to_insert, void *data_to_find);
 
 #endif /* TK_CONTAINER_H */

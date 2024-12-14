@@ -15,7 +15,7 @@ tk_node_t* tk_list_create(void* data){
     return node;
 }
 
-void tk_list_delete(tk_node_t **list, int flag)
+void tk_list_destroy(tk_node_t **list, int flag)
 {
     tk_node_t *current, *tmp;
     
