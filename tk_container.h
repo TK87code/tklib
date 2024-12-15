@@ -1,6 +1,6 @@
 /**
- * @file tk_list.h
-* @brief This is a implementation of singly linked list in C.
+ * @file tk_container.h
+* @brief This is a implementation of singly linked list, dynamic array in C.
 * @author Takuya Kimura (https://github.com/TK87code)
  * @date December 4th 2024 7:11 pm 
 */
@@ -28,13 +28,40 @@ void* tk_darray_create(size_t item_size);
 */
 void tk_darray_destroy(void *darray);
 
-void* tk_darray_push(void *darray, const void *item);
+/**
+* @brief push item at the end of the darray.
+* @param darray A double pointer to the darray.
+* @param item A pointer to the item to push.
+*/
+void tk_darray_push(void **darray, const void *item);
 
+/**
+* @brief return the number of items currently contain in the array.(This is not the capacity)
+* @param darray A pointer to darray.
+* @return Number of items that the array currently has.
+*/
 size_t tk_darray_count(void *darray);
 
+/**
+* @brief Pop the last item in the darray.
+* @param darray A pointer to the darray.
+*/
 void tk_darray_pop(void *darray);
 
-void* tk_darray_insert_at(void* darray, void* item, size_t index);
+/**
+* @brief Insert a item to a darray at given index.
+* @param darray A double pointer to the darray.
+* @param item A pointer to the item to insert.
+* @param index An Index to insert at.
+*/
+void tk_darray_insert_at(void** darray, void* item, size_t index);
+
+/**
+* @brief Erase a item at given index in a darray.
+* @param darray A pointer to the darray.
+* @param index An index to earase at.
+*/
+void tk_darray_erase_at(void* darray, size_t index);
 
 /* === tk_list.c ===*/
 

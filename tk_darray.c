@@ -21,11 +21,9 @@ size_t length = number of items that array currently has.
 size_t item_size = the size of each items in bytes.
 void * items
 */
-    size_t header_size, array_size;
+    size_t header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
+    size_t array_size = DEFAULT_CAPACITY * item_size;
     size_t *new_array;
-    
-    header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
-    array_size = DEFAULT_CAPACITY * item_size;
     
     new_array = malloc(header_size + array_size);
     if (!new_array) exit(1);
@@ -41,7 +39,7 @@ void * items
 
 void tk_darray_destroy(void *darray)
 {
-    /* Back to the adress at the very first of darray header(which was gave from malloc or realloc), and free it */
+    /* Back to the adress at the very first of darray header(which was gave from malloc), and free it */
     darray = (size_t*)darray - DARRAY_ELEMENT_COUNT;
     free(darray);
 }
@@ -69,44 +67,45 @@ static void* __darray_resize(void *darray, int resize_factor)
     size_t length = __get_header_element(darray, DARRAY_LENGTH);
     size_t header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
     size_t new_array_size = header_size + capacity * item_size * resize_factor;
-    
-    /* The address that  was given by malloc when created */
+    size_t *resized_array;
+    size_t *tmp;
+    /* A address of the head of the header*/
     size_t *addr = (size_t*)darray - DARRAY_ELEMENT_COUNT;
     
-    size_t *resized_array = malloc(new_array_size);
-    if (!resized_array) return NULL;
-    free(addr);
+    resized_array = malloc(new_array_size);
+    if (!resized_array) exit(1);
+    
     memset(resized_array, 0, new_array_size);
     memcpy(resized_array, addr, header_size + (length * item_size));
     
     /* Update capacity header data */
-    addr = resized_array + DARRAY_ELEMENT_COUNT;
-    __set_header_element(addr, DARRAY_CAPACITY, capacity * resize_factor);
+    tmp = resized_array + DARRAY_ELEMENT_COUNT;
+    __set_header_element(tmp, DARRAY_CAPACITY, capacity * resize_factor);
+    
+    /* The address that  was given by malloc when created */
+    free(addr);
     
     return (void*)(resized_array + DARRAY_ELEMENT_COUNT);
 }
 
-void* tk_darray_push(void *darray, const void *item)
+void tk_darray_push(void **darray, const void *item)
 {
-    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
-    size_t capacity = __get_header_element(darray, DARRAY_CAPACITY);
-    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    size_t item_size = __get_header_element(*darray, DARRAY_ITEM_SIZE);
+    size_t capacity = __get_header_element(*darray, DARRAY_CAPACITY);
+    size_t length = __get_header_element(*darray, DARRAY_LENGTH);
     char *addr_to_add;
     
     /* Resize the darray if needed */
     if (length >= capacity){
-        darray = __darray_resize(darray, DEFAULT_RESIZE_FACTOR);
-        if (!darray) return NULL;
+        *darray = __darray_resize(*darray, DEFAULT_RESIZE_FACTOR);
     }
     
     /* Move the pointer to the end, casting char* (1 byte)*/
-    addr_to_add = (char*)darray + (length * item_size);
+    addr_to_add = (char*)*darray + (length * item_size);
     memcpy((void*)addr_to_add, item, item_size);
     
     /* update length data in header */
-    __set_header_element(darray, DARRAY_LENGTH, length + 1);
-    
-    return darray;
+    __set_header_element(*darray, DARRAY_LENGTH, length + 1);
 }
 
 size_t tk_darray_count(void *darray)
@@ -126,11 +125,10 @@ void tk_darray_pop(void *darray)
     __set_header_element(darray, DARRAY_LENGTH, length - 1);
 }
 
-void* tk_darray_insert_at(void* darray, void* item, size_t index){
-    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
-    size_t length = __get_header_element(darray, DARRAY_LENGTH);
-    size_t capacity = __get_header_element(darray, DARRAY_CAPACITY);
-    size_t header_size = DARRAY_ELEMENT_COUNT * sizeof(size_t);
+void tk_darray_insert_at(void** darray, void* item, size_t index){
+    size_t item_size = __get_header_element(*darray, DARRAY_ITEM_SIZE);
+    size_t length = __get_header_element(*darray, DARRAY_LENGTH);
+    size_t capacity = __get_header_element(*darray, DARRAY_CAPACITY);
     
     /* If the darray already at the full capacity, resize */
     if (index >= capacity){
@@ -141,11 +139,11 @@ void* tk_darray_insert_at(void* darray, void* item, size_t index){
             new_capacity =  new_capacity * resize_factor;
         }while (index >= new_capacity);
         
-        darray = __darray_resize(darray, resize_factor);
-        capacity = __get_header_element(darray, DARRAY_CAPACITY);
+        *darray = __darray_resize(*darray, resize_factor);
+        capacity = __get_header_element(*darray, DARRAY_CAPACITY);
     }
     
-    char *addr = (char*)darray;
+    char *addr = (char*)*darray;
     /* If index is not the last item in the array, copy the memory onwards */
     if (index != length - 1){
         memcpy((void*)(addr + ((index + 1) * item_size)),
@@ -156,7 +154,24 @@ void* tk_darray_insert_at(void* darray, void* item, size_t index){
     memcpy((void*)(addr + index * item_size), item, item_size);
     
     /* Update header data*/
-    __set_header_element(darray, DARRAY_LENGTH, (index + 1 > length + 1) ? index + 1 : length + 1);
+    __set_header_element(*darray, DARRAY_LENGTH, (index + 1 > length + 1) ? index + 1 : length + 1);
+}
+
+void tk_darray_erase_at(void* darray, size_t index)
+{
+    size_t item_size = __get_header_element(darray, DARRAY_ITEM_SIZE);
+    size_t capacity = __get_header_element(darray, DARRAY_CAPACITY);
+    size_t length = __get_header_element(darray, DARRAY_LENGTH);
+    char *addr = (char*)darray;
+    /*If index is not the last item in the array, copy the memory onwards */
     
-    return darray;
+    if (index != length -1){
+        memcpy((void*)(addr + (index * item_size)), 
+               (void*)(addr + ((index + 1) * item_size)),
+               item_size * (capacity - index));
+    }
+    /* Erase the last item */
+    tk_darray_pop(darray);
+    /* Update the header */
+    __set_header_element(darray, DARRAY_LENGTH, length - 1);
 }
